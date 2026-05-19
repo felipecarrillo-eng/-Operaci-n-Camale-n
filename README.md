@@ -1,17 +1,33 @@
-# operacion_camaleon
+# Accesibilidad y UX - Operación Camaleón
 
-A new Flutter project.
+# Persona 3 — Accesibilidad + UX
 
-## Getting Started
+Se implementó accesibilidad usando `Semantics` para mejorar la compatibilidad con lectores de pantalla y la experiencia de usuario.
 
-This project is a starting point for a Flutter application.
+# Funcionalidades
 
-A few resources to get you started if this is your first Flutter project:
+- Botones accesibles con etiquetas descriptivas
+- Botón:
+  `"Finalizar misión y borrar rastro"`
+- Imágenes con descripción semántica
+- Widgets reutilizables para accesibilidad
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+# Estructura
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+
+lib/
+ └── features/
+     └── profile/
+         └── presentation/
+              └── accessibility_widgets.dart
+
+
+# Tecnologías
+
+- Flutter
+- Material 3
+- Semantics API
+
+# Resultado
+
+La aplicación ahora cuenta con una interfaz más accesible y compatible con tecnologías asistivas.
