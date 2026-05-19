@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+
 //BOTÓN ACCESIBLE PARA FACCIÓN
 //Este widget reutilizable agrega accesibilidad usando
 //Semantics para lectores de pantalla.
