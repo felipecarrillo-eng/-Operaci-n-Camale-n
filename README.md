@@ -1,6 +1,6 @@
 # Accesibilidad y UX - Operación Camaleón
 
-# Persona 3 — Accesibilidad + UX
+# Accesibilidad + UX
 
 Se implementó accesibilidad usando `Semantics` para mejorar la compatibilidad con lectores de pantalla y la experiencia de usuario.
 
