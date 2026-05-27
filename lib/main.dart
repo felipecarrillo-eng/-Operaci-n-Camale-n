@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'
 import 'package:google_fonts/google_fonts.dart';
+import 'package:operacion_camaleon/features/profile/presentation/profile_screen.dart';
 
 /// Punto de entrada de la aplicación
 void main() {
@@ -66,39 +67,8 @@ class _MyAppState extends State<MyApp> {
         textTheme: GoogleFonts.jetBrainsMonoTextTheme(),
       ),
 
-      /// Pantalla principal de la app
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text("ShadowNet"),
-        ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            /// Texto informativo
-            const Text("Selecciona tu facción"),
-
-            const SizedBox(height: 20),
-
-            /// Botón para facción Hacker
-            ElevatedButton(
-              onPressed: () => changeFaction(FactionType.hacker),
-              child: const Text("Hacker"),
-            ),
-
-            /// Botón para facción Enforcer
-            ElevatedButton(
-              onPressed: () => changeFaction(FactionType.enforcer),
-              child: const Text("Enforcer"),
-            ),
-
-            /// Botón para facción Ghost
-            ElevatedButton(
-              onPressed: () => changeFaction(FactionType.ghost),
-              child: const Text("Ghost"),
-            ),
-          ],
-        ),
-      ),
+      /// Pantalla principal: ProfileScreen con UI mejorada
+      home: const ProfileScreen(),
     );
   }
 }
