@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'
 import 'package:google_fonts/google_fonts.dart';
 import 'package:operacion_camaleon/features/profile/presentation/profile_screen.dart';
 
@@ -53,9 +53,6 @@ class _MyAppState extends State<MyApp> {
       /// Oculta la etiqueta de debug
       debugShowCheckedModeBanner: false,
 
-      /// Título de la aplicación
-      title: 'Operación Camaleón',
-
       /// Configuración del tema global usando Material 3
       theme: ThemeData(
         useMaterial3: true,
@@ -70,77 +67,8 @@ class _MyAppState extends State<MyApp> {
         textTheme: GoogleFonts.jetBrainsMonoTextTheme(),
       ),
 
-      /// Pantalla principal de la app
-      home: _buildHome(),
-    );
-  }
-
-  /// Construye la interfaz principal con navegación
-  Widget _buildHome() {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("ShadowNet - Operación Camaleón"),
-      ),
-      body: Column(
-        children: [
-          /// Sección de selección de facciones
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                const Text(
-                  "Selecciona tu facción",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    /// Botón para facción Hacker
-                    ElevatedButton(
-                      onPressed: () => changeFaction(FactionType.hacker),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: selectedFaction == FactionType.hacker
-                            ? Colors.green
-                            : Colors.grey,
-                      ),
-                      child: const Text("Hacker"),
-                    ),
-
-                    /// Botón para facción Enforcer
-                    ElevatedButton(
-                      onPressed: () => changeFaction(FactionType.enforcer),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: selectedFaction == FactionType.enforcer
-                            ? Colors.blue
-                            : Colors.grey,
-                      ),
-                      child: const Text("Enforcer"),
-                    ),
-
-                    /// Botón para facción Ghost
-                    ElevatedButton(
-                      onPressed: () => changeFaction(FactionType.ghost),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: selectedFaction == FactionType.ghost
-                            ? Colors.purple
-                            : Colors.grey,
-                      ),
-                      child: const Text("Ghost"),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const Divider(),
-
-          /// Sección de ProfileScreen
-          Expanded(
-            child: ProfileScreen(),
-          ),
-        ],
-      ),
+      /// Pantalla principal: ProfileScreen con UI mejorada
+      home: const ProfileScreen(),
     );
   }
 }
