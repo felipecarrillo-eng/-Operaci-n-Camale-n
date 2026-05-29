@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:operacion_camaleon/features/profile/domain/faction_type.dart';
+import 'package:operacion_camaleon/features/profile/presentation/accessibility_widgets.dart';
 
-/// Pantalla principal de Operación Camaleón con interfaz futurista
-/// 
-/// Características:
-/// - Diseño cyberpunk estilo ShadowNet
-/// - Selector dinámico de facciones
-/// - Contador interactivo con efectos neon
-/// - Animaciones suaves y responsivas
+/// Pantalla principal de Operacion Camaleon con interfaz futurista.
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final FactionType selectedFaction;
+  final ValueChanged<FactionType> onFactionChanged;
+
+  const ProfileScreen({
+    super.key,
+    required this.selectedFaction,
+    required this.onFactionChanged,
+  });
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -16,28 +19,11 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen>
     with SingleTickerProviderStateMixin {
-  // ============================================================================
-  // CONSTANTS - COLORES NEON
-  // ============================================================================
-
-  static const Color _colorNeonGreen = Color(0xFF00ff88);
-  static const Color _colorNeonPurple = Color(0xFF9d00ff);
-  static const Color _colorNeonBlue = Color(0xFF00d4ff);
-  static const Color _colorDarkBg1 = Color(0xFF1a1a2e);
-  static const Color _colorDarkBg2 = Color(0xFF16213e);
-  static const Color _colorDarkBg3 = Color(0xFF0f3460);
-
-  // ============================================================================
-  // STATE
-  // ============================================================================
-
   int _counter = 0;
-  String selectedFaction = 'hacker';
+  double _missionProgress = 0.2;
+  bool _stealthEnabled = true;
+  final List<String> _activityLog = ['Sistema listo'];
   late AnimationController _animationController;
-
-  // ============================================================================
-  // LIFECYCLE
-  // ============================================================================
 
   @override
   void initState() {
@@ -54,55 +40,87 @@ class _ProfileScreenState extends State<ProfileScreen>
     super.dispose();
   }
 
-  // ============================================================================
-  // ACTIONS
-  // ============================================================================
-
   void _incrementCounter() {
     setState(() {
       _counter++;
+      _addLog('Puntos +1 (total $_counter)');
     });
     _animationController.forward().then((_) {
       _animationController.reset();
     });
   }
 
-  void _changeFaction(String faction) {
+  void _changeFaction(FactionType faction) {
     setState(() {
-      selectedFaction = faction;
+      _addLog('Faccion cambiada a ${faction.label}');
+    });
+    widget.onFactionChanged(faction);
+  }
+
+  void _runScan() {
+    setState(() {
+      _missionProgress = (_missionProgress + 0.2).clamp(0.0, 1.0);
+      if (_missionProgress >= 1.0) {
+        _addLog('Objetivo asegurado. Extraccion lista');
+      } else {
+        _addLog('Escaneo de red completado');
+      }
+    });
+    _animationController.forward().then((_) {
+      _animationController.reset();
     });
   }
 
-  // ============================================================================
-  // BUILD
-  // ============================================================================
+  void _toggleStealth() {
+    setState(() {
+      _stealthEnabled = !_stealthEnabled;
+      _addLog(
+        _stealthEnabled ? 'Modo sigilo activado' : 'Modo sigilo desactivado',
+      );
+    });
+  }
+
+  void _finalizeMission() {
+    setState(() {
+      _counter = 0;
+      _missionProgress = 0.0;
+      _stealthEnabled = false;
+      _activityLog
+        ..clear()
+        ..add('Mision finalizada. Rastro borrado');
+    });
+  }
+
+  void _addLog(String message) {
+    _activityLog.insert(0, message);
+    if (_activityLog.length > 4) {
+      _activityLog.removeLast();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 600;
+    final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: _buildAppBar(),
-      body: _buildBody(isMobile),
-      floatingActionButton: _buildFloatingActionButton(),
+      appBar: _buildAppBar(scheme),
+      body: _buildBody(isMobile, scheme),
+      floatingActionButton: _buildFloatingActionButton(scheme),
     );
   }
 
-  // ============================================================================
-  // UI BUILDERS - MAIN STRUCTURE
-  // ============================================================================
-
-  PreferredSizeWidget _buildAppBar() {
+  PreferredSizeWidget _buildAppBar(ColorScheme scheme) {
     return AppBar(
-      backgroundColor: _colorDarkBg3,
+      backgroundColor: scheme.surface,
       elevation: 0,
-      title: const Text(
-        'OPERACIÓN CAMALEÓN',
+      title: Text(
+        'OPERACION CAMALEON',
         style: TextStyle(
           fontSize: 22,
           fontWeight: FontWeight.bold,
           letterSpacing: 3,
-          color: _colorNeonGreen,
+          color: scheme.primary,
         ),
       ),
       centerTitle: true,
@@ -113,8 +131,8 @@ class _ProfileScreenState extends State<ProfileScreen>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                _colorNeonGreen.withOpacity(0.5),
-                _colorNeonPurple.withOpacity(0.5),
+                scheme.primary.withOpacity(0.6),
+                scheme.secondary.withOpacity(0.6),
               ],
             ),
           ),
@@ -123,13 +141,16 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildBody(bool isMobile) {
+  Widget _buildBody(bool isMobile, ColorScheme scheme) {
+    final surface1 = scheme.surface;
+    final surface2 = scheme.surfaceContainerHigh;
+
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [_colorDarkBg1, _colorDarkBg2],
+          colors: [surface1, surface2],
         ),
       ),
       child: Center(
@@ -140,17 +161,39 @@ class _ProfileScreenState extends State<ProfileScreen>
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                _buildImageSection(),
+                _buildImageSection(scheme),
                 const SizedBox(height: 48),
-                _buildMainText(),
+                _buildMainText(scheme),
                 const SizedBox(height: 32),
-                _buildCounterDisplay(),
+                _buildCounterDisplay(scheme),
                 const SizedBox(height: 48),
-                _buildFactionButtons(),
+                _buildFactionButtons(scheme),
                 const SizedBox(height: 48),
-                _buildIncrementButton(),
-                const SizedBox(height: 32),
-                _buildInfoBox(),
+                _buildIncrementButton(scheme),
+                const SizedBox(height: 24),
+                _buildInfoBox(scheme),
+                const SizedBox(height: 24),
+                _buildMissionModule(scheme),
+                const SizedBox(height: 24),
+                _buildActivityLog(scheme),
+                const SizedBox(height: 24),
+                LogoutMissionButton(
+                  onPressed: _finalizeMission,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: scheme.surfaceContainerHigh,
+                    foregroundColor: scheme.error,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 36,
+                      vertical: 14,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      side: BorderSide(color: scheme.error, width: 2),
+                    ),
+                    elevation: 0,
+                    shadowColor: Colors.transparent,
+                  ),
+                ),
               ],
             ),
           ),
@@ -159,84 +202,86 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  // ============================================================================
-  // UI BUILDERS - COMPONENTS
-  // ============================================================================
+  Widget _buildImageSection(ColorScheme scheme) {
+    final selectedFaction = widget.selectedFaction;
 
-  /// Caja de imagen con efecto neon dinámico
-  Widget _buildImageSection() {
-    return ScaleTransition(
-      scale: Tween<double>(begin: 0.95, end: 1.0).animate(
-        CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
-      ),
-      child: Container(
-        height: 240,
-        width: 240,
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: _colorNeonGreen,
-            width: 3,
+    return Semantics(
+      label: 'Logo de la faccion ${selectedFaction.label}',
+      image: true,
+      child: ScaleTransition(
+        scale: Tween<double>(begin: 0.95, end: 1.0).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.elasticOut,
           ),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: _colorNeonGreen.withOpacity(0.5),
-              blurRadius: 30,
-              spreadRadius: 8,
-            ),
-            BoxShadow(
-              color: _colorNeonPurple.withOpacity(0.3),
-              blurRadius: 20,
-              spreadRadius: 3,
-            ),
-          ],
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(14),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              // Fondo degradado
-              Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [_colorDarkBg3, _colorDarkBg2],
-                  ),
-                ),
+        child: Container(
+          height: 240,
+          width: 240,
+          decoration: BoxDecoration(
+            border: Border.all(color: scheme.primary, width: 3),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: scheme.primary.withOpacity(0.5),
+                blurRadius: 30,
+                spreadRadius: 8,
               ),
-
-              // Contenido
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    _getFactionIcon(selectedFaction),
-                    size: 120,
-                    color: _colorNeonGreen,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    selectedFaction.toUpperCase(),
-                    style: const TextStyle(
-                      color: _colorNeonGreen,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 3,
-                    ),
-                  ),
-                ],
+              BoxShadow(
+                color: scheme.secondary.withOpacity(0.3),
+                blurRadius: 20,
+                spreadRadius: 3,
               ),
             ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(14),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        scheme.surfaceContainerHighest,
+                        scheme.surfaceContainerHigh,
+                      ],
+                    ),
+                  ),
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ExcludeSemantics(
+                      child: Icon(
+                        _getFactionIcon(selectedFaction),
+                        size: 120,
+                        color: scheme.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      selectedFaction.label.toUpperCase(),
+                      style: TextStyle(
+                        color: scheme.primary,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 3,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  /// Texto descriptivo principal
-  Widget _buildMainText() {
+  Widget _buildMainText(ColorScheme scheme) {
     return Column(
       children: [
         Text(
@@ -244,7 +289,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 14,
-            color: _colorNeonBlue.withOpacity(0.8),
+            color: scheme.secondary.withOpacity(0.8),
             letterSpacing: 2,
             fontWeight: FontWeight.w500,
           ),
@@ -255,7 +300,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 16,
-            color: Colors.white.withOpacity(0.6),
+            color: scheme.onSurface.withOpacity(0.7),
             letterSpacing: 1,
           ),
         ),
@@ -263,8 +308,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  /// Contador con efecto glow y animación
-  Widget _buildCounterDisplay() {
+  Widget _buildCounterDisplay(ColorScheme scheme) {
     return ScaleTransition(
       scale: Tween<double>(begin: 1.0, end: 1.1).animate(
         CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
@@ -272,123 +316,110 @@ class _ProfileScreenState extends State<ProfileScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
         decoration: BoxDecoration(
-          border: Border.all(
-            color: _colorNeonGreen,
-            width: 2,
-          ),
+          border: Border.all(color: scheme.primary, width: 2),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
-            BoxShadow(
-              color: _colorNeonGreen.withOpacity(0.4),
-              blurRadius: 15,
-            ),
+            BoxShadow(color: scheme.primary.withOpacity(0.4), blurRadius: 15),
           ],
         ),
         child: Text(
           '$_counter',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 96,
             fontWeight: FontWeight.bold,
-            color: _colorNeonGreen,
+            color: scheme.primary,
             letterSpacing: 4,
-            shadows: [
-              Shadow(
-                color: _colorNeonGreen,
-                blurRadius: 20,
-              ),
-            ],
+            shadows: [Shadow(color: scheme.primary, blurRadius: 20)],
           ),
         ),
       ),
     );
   }
 
-  /// Botones de selección de facción
-  Widget _buildFactionButtons() {
+  Widget _buildFactionButtons(ColorScheme scheme) {
     return Column(
       children: [
         Text(
-          'SELECCIONA FACCIÓN',
+          'SELECCIONA FACCION',
           style: TextStyle(
             fontSize: 12,
-            color: _colorNeonPurple.withOpacity(0.8),
+            color: scheme.secondary.withOpacity(0.8),
             letterSpacing: 2,
             fontWeight: FontWeight.w500,
           ),
         ),
         const SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 20,
+          runSpacing: 20,
           children: [
-            _buildFactionButton('hacker', Icons.code),
-            const SizedBox(width: 20),
-            _buildFactionButton('ghost', Icons.ghost_mode),
-            const SizedBox(width: 20),
-            _buildFactionButton('enforcer', Icons.shield),
+            for (final faction in FactionType.values)
+              _buildFactionButton(faction, scheme),
           ],
         ),
       ],
     );
   }
 
-  /// Botón individual de facción con efecto hover
-  Widget _buildFactionButton(String faction, IconData icon) {
-    final isSelected = selectedFaction == faction;
-    final borderColor = isSelected ? _colorNeonGreen : _colorNeonBlue;
-    final glowColor = isSelected ? _colorNeonGreen : _colorNeonBlue;
+  Widget _buildFactionButton(FactionType faction, ColorScheme scheme) {
+    final isSelected = widget.selectedFaction == faction;
+    final borderColor = isSelected ? scheme.primary : scheme.secondary;
+    final glowColor = isSelected ? scheme.primary : scheme.secondary;
 
-    return GestureDetector(
-      onTap: () => _changeFaction(faction),
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: borderColor,
-              width: isSelected ? 3 : 2,
+    return Semantics(
+      label: 'Seleccionar faccion ${faction.label}',
+      button: true,
+      selected: isSelected,
+      child: GestureDetector(
+        onTap: () => _changeFaction(faction),
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              border: Border.all(color: borderColor, width: isSelected ? 3 : 2),
+              borderRadius: BorderRadius.circular(14),
+              color: isSelected
+                  ? scheme.surfaceContainerHigh
+                  : Colors.transparent,
+              boxShadow: isSelected
+                  ? [
+                      BoxShadow(
+                        color: glowColor.withOpacity(0.4),
+                        blurRadius: 15,
+                        spreadRadius: 2,
+                      ),
+                    ]
+                  : null,
             ),
-            borderRadius: BorderRadius.circular(14),
-            color: isSelected ? _colorDarkBg3 : Colors.transparent,
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: glowColor.withOpacity(0.4),
-                      blurRadius: 15,
-                      spreadRadius: 2,
-                    ),
-                  ]
-                : null,
-          ),
-          child: Icon(
-            icon,
-            color: isSelected ? _colorNeonGreen : Colors.white54,
-            size: 40,
+            child: ExcludeSemantics(
+              child: Icon(
+                _getFactionIcon(faction),
+                color: isSelected
+                    ? scheme.primary
+                    : scheme.onSurface.withOpacity(0.6),
+                size: 40,
+              ),
+            ),
           ),
         ),
       ),
     );
   }
 
-  /// Botón principal de incremento
-  Widget _buildIncrementButton() {
+  Widget _buildIncrementButton(ColorScheme scheme) {
     return ElevatedButton(
       onPressed: _incrementCounter,
       style: ElevatedButton.styleFrom(
-        backgroundColor: _colorDarkBg3,
-        foregroundColor: _colorNeonGreen,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 50,
-          vertical: 18,
-        ),
+        backgroundColor: scheme.surfaceContainerHigh,
+        foregroundColor: scheme.primary,
+        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 18),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
-          side: const BorderSide(
-            color: _colorNeonGreen,
-            width: 2,
-          ),
+          side: BorderSide(color: scheme.primary, width: 2),
         ),
         elevation: 0,
         shadowColor: Colors.transparent,
@@ -404,17 +435,13 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  /// Caja informativa con estadísticas
-  Widget _buildInfoBox() {
+  Widget _buildInfoBox(ColorScheme scheme) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        border: Border.all(
-          color: _colorNeonBlue.withOpacity(0.5),
-          width: 1,
-        ),
+        border: Border.all(color: scheme.secondary.withOpacity(0.5), width: 1),
         borderRadius: BorderRadius.circular(12),
-        color: _colorDarkBg3.withOpacity(0.3),
+        color: scheme.surfaceContainerHigh.withOpacity(0.4),
       ),
       child: Column(
         children: [
@@ -422,7 +449,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             'ESTADO ACTUAL',
             style: TextStyle(
               fontSize: 12,
-              color: _colorNeonBlue.withOpacity(0.8),
+              color: scheme.secondary.withOpacity(0.8),
               letterSpacing: 1,
               fontWeight: FontWeight.bold,
             ),
@@ -431,8 +458,12 @@ class _ProfileScreenState extends State<ProfileScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildInfoItem('FACCIÓN', selectedFaction.toUpperCase()),
-              _buildInfoItem('PUNTOS', _counter.toString()),
+              _buildInfoItem(
+                'FACCION',
+                widget.selectedFaction.label.toUpperCase(),
+                scheme,
+              ),
+              _buildInfoItem('PUNTOS', _counter.toString(), scheme),
             ],
           ),
         ],
@@ -440,24 +471,179 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  /// Elemento de información
-  Widget _buildInfoItem(String label, String value) {
+  Widget _buildMissionModule(ColorScheme scheme) {
+    final progressPercent = (_missionProgress * 100).round();
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border.all(color: scheme.primary.withOpacity(0.4), width: 1),
+        borderRadius: BorderRadius.circular(12),
+        color: scheme.surfaceContainerHigh.withOpacity(0.35),
+      ),
+      child: Column(
+        children: [
+          Text(
+            'MODULO DE MISION',
+            style: TextStyle(
+              fontSize: 12,
+              color: scheme.primary.withOpacity(0.9),
+              letterSpacing: 1,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          LinearProgressIndicator(
+            value: _missionProgress,
+            minHeight: 8,
+            color: scheme.primary,
+            backgroundColor: scheme.surfaceContainerHighest,
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildStatusChip('PROGRESO', '$progressPercent%', scheme),
+              _buildStatusChip(
+                'SIGILO',
+                _stealthEnabled ? 'ACTIVO' : 'INACTIVO',
+                scheme,
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              ElevatedButton.icon(
+                onPressed: _runScan,
+                icon: const Icon(Icons.wifi_tethering),
+                label: const Text('ESCANEAR RED'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: scheme.surfaceContainerHigh,
+                  foregroundColor: scheme.primary,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: scheme.primary, width: 1.5),
+                  ),
+                ),
+              ),
+              OutlinedButton.icon(
+                onPressed: _toggleStealth,
+                icon: Icon(
+                  _stealthEnabled ? Icons.visibility_off : Icons.visibility,
+                ),
+                label: Text(
+                  _stealthEnabled ? 'MODO SIGILO: ON' : 'MODO SIGILO: OFF',
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: scheme.secondary,
+                  side: BorderSide(color: scheme.secondary, width: 1.5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActivityLog(ColorScheme scheme) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border.all(color: scheme.secondary.withOpacity(0.4), width: 1),
+        borderRadius: BorderRadius.circular(12),
+        color: scheme.surfaceContainerHigh.withOpacity(0.25),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'ACTIVIDAD RECIENTE',
+            style: TextStyle(
+              fontSize: 12,
+              color: scheme.secondary.withOpacity(0.9),
+              letterSpacing: 1,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          if (_activityLog.isEmpty)
+            Text(
+              'Sin eventos registrados',
+              style: TextStyle(
+                fontSize: 13,
+                color: scheme.onSurface.withOpacity(0.6),
+              ),
+            )
+          else
+            for (final entry in _activityLog)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Text(
+                  '- $entry',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: scheme.onSurface.withOpacity(0.75),
+                  ),
+                ),
+              ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusChip(String label, String value, ColorScheme scheme) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: scheme.primary.withOpacity(0.4), width: 1),
+      ),
+      child: Text(
+        '$label: $value',
+        style: TextStyle(
+          fontSize: 11,
+          color: scheme.onSurface.withOpacity(0.75),
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoItem(String label, String value, ColorScheme scheme) {
     return Column(
       children: [
         Text(
           label,
           style: TextStyle(
             fontSize: 11,
-            color: Colors.white.withOpacity(0.5),
+            color: scheme.onSurface.withOpacity(0.5),
             letterSpacing: 1,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
-            color: _colorNeonGreen,
+            color: scheme.primary,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -465,39 +651,29 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  /// Botón de acción flotante
-  Widget _buildFloatingActionButton() {
+  Widget _buildFloatingActionButton(ColorScheme scheme) {
     return FloatingActionButton(
       onPressed: _incrementCounter,
-      backgroundColor: _colorDarkBg3,
-      foregroundColor: _colorNeonGreen,
+      backgroundColor: scheme.surfaceContainerHigh,
+      foregroundColor: scheme.primary,
       elevation: 0,
+      tooltip: 'Incrementar contador',
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(
-          color: _colorNeonGreen,
-          width: 2,
-        ),
+        side: BorderSide(color: scheme.primary, width: 2),
       ),
       child: const Icon(Icons.add, size: 32),
     );
   }
 
-  // ============================================================================
-  // HELPERS
-  // ============================================================================
-
-  /// Obtiene el icono según la facción seleccionada
-  IconData _getFactionIcon(String faction) {
+  IconData _getFactionIcon(FactionType faction) {
     switch (faction) {
-      case 'hacker':
+      case FactionType.hacker:
         return Icons.code;
-      case 'ghost':
-        return Icons.ghost_mode;
-      case 'enforcer':
+      case FactionType.ghost:
+        return Icons.visibility_off;
+      case FactionType.enforcer:
         return Icons.shield;
-      default:
-        return Icons.code;
     }
   }
 }

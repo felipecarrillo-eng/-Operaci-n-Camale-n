@@ -1,15 +1,12 @@
-import 'package:flutter/material.dart'
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:operacion_camaleon/features/profile/domain/faction_type.dart';
 import 'package:operacion_camaleon/features/profile/presentation/profile_screen.dart';
 
 /// Punto de entrada de la aplicación
 void main() {
   runApp(const MyApp());
 }
-
-/// Enum que representa las diferentes facciones disponibles
-/// Cada una cambiará el tema visual de la aplicación
-enum FactionType { hacker, enforcer, ghost }
 
 /// Widget principal de la aplicación
 /// Es Stateful porque el tema cambia dinámicamente
@@ -49,6 +46,11 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: getSeedColor(),
+      brightness: Brightness.dark,
+    );
+
     return MaterialApp(
       /// Oculta la etiqueta de debug
       debugShowCheckedModeBanner: false,
@@ -59,16 +61,21 @@ class _MyAppState extends State<MyApp> {
 
         /// Generación dinámica del esquema de colores
         /// basado en el seedColor seleccionado
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: getSeedColor(),
-        ),
+        colorScheme: colorScheme,
 
         /// Tipografía personalizada estilo tecnológica
-        textTheme: GoogleFonts.jetBrainsMonoTextTheme(),
+        textTheme: GoogleFonts.jetBrainsMonoTextTheme(
+          ThemeData(brightness: Brightness.dark).textTheme,
+        ),
+
+        scaffoldBackgroundColor: colorScheme.surface,
       ),
 
       /// Pantalla principal: ProfileScreen con UI mejorada
-      home: const ProfileScreen(),
+      home: ProfileScreen(
+        selectedFaction: selectedFaction,
+        onFactionChanged: changeFaction,
+      ),
     );
   }
 }

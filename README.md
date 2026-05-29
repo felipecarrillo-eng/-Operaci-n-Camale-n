@@ -1,84 +1,68 @@
+# Operacion Camaleon - ShadowNet
 
-# Operación Camaleón - ShadowNet
-
-Aplicación desarrollada en Flutter utilizando Material 3 y arquitectura basada en features.
-
-El objetivo del proyecto es crear un perfil dinámico de agente donde la interfaz cambia visualmente según la facción seleccionada.
-
----
-
-# Características
-
-- Cambio dinámico de tema usando Material 3
-- Selector de facciones:
-  - Hacker
-  - Enforcer
-  - Ghost
-- Tipografía futurista con Google Fonts
-- Arquitectura basada en features
-- Accesibilidad usando Semantics
+Aplicacion en Flutter con Material 3 y arquitectura basada en features.
+El objetivo es crear un perfil dinamico de agente donde la interfaz cambia
+segun la faccion seleccionada.
 
 ---
 
-# Tema Dinámico con SeedColor
+# Caracteristicas
 
-La aplicación utiliza:
+- Selector de faccion (Hacker, Enforcer, Ghost).
+- Tema dinamico Material 3 por faccion.
+- Logo central que cambia segun la faccion.
+- Tipografia JetBrains Mono con Google Fonts.
+- Accesibilidad con Semantics.
+
+---
+
+# Tema dinamico con SeedColor
+
+El tema global se genera con:
 
 ```dart
-ColorScheme.fromSeed(seedColor: color)
+ColorScheme.fromSeed(seedColor: color, brightness: Brightness.dark)
 ```
 
-Esto permite generar automáticamente toda la paleta de colores de la aplicación dependiendo de la facción seleccionada.
+El `seedColor` se deriva de la faccion seleccionada y se usa como base para
+la paleta completa (AppBar, botones, fondos y texto).
 
-Ejemplo:
-
-- Hacker → Verde
-- Enforcer → Azul
-- Ghost → Morado
+Archivo clave: [lib/main.dart](lib/main.dart)
 
 ---
 
 # Accesibilidad con Semantics
 
-Se implementan etiquetas accesibles para lectores de pantalla.
+Se agregan etiquetas accesibles para lectores de pantalla, incluyendo:
 
-Ejemplo:
+- Botones de faccion con etiqueta descriptiva.
+- Boton de "Cerrar sesion" con la etiqueta requerida:
+  "Boton: Finalizar mision y borrar rastro".
+- Logo central con etiqueta semantica.
 
-```dart
-Semantics(
-  label: "Botón: Finalizar misión y borrar rastro",
-  button: true,
-)
-```
-
-Esto mejora la experiencia de usuarios con herramientas de accesibilidad.
+Archivo clave: [lib/features/profile/presentation/accessibility_widgets.dart](lib/features/profile/presentation/accessibility_widgets.dart)
 
 ---
 
-# Tipografía
+# Tipografia
 
-Se utiliza:
-
-- JetBrains Mono
-
-Implementada mediante Google Fonts.
+- JetBrains Mono mediante Google Fonts.
 
 ---
 
-# Estructura del Proyecto
+# Estructura del proyecto
 
 ```text
 lib/
  └── features/
      └── profile/
-         ├── data/
          ├── domain/
          └── presentation/
 ```
 
 ---
 
-# Instalación
+# Instalacion
 
 ## 1. Clonar repositorio
 
@@ -100,7 +84,7 @@ flutter run
 
 ---
 
-#  Integrantes
+# Integrantes
 
 - Felipe Carrillo
 - Angie Carrillo
@@ -109,45 +93,10 @@ flutter run
 
 ---
 
-#  Tecnologías
+# Tecnologias
 
 - Flutter
 - Dart
 - Material 3
 - Google Fonts
-- Git & GitHub
-=======
-# Accesibilidad y UX - Operación Camaleón
-
-# Accesibilidad + UX
-
-Se implementó accesibilidad usando `Semantics` para mejorar la compatibilidad con lectores de pantalla y la experiencia de usuario.
-
-# Funcionalidades
-
-- Botones accesibles con etiquetas descriptivas
-- Botón:
-  `"Finalizar misión y borrar rastro"`
-- Imágenes con descripción semántica
-- Widgets reutilizables para accesibilidad
-
-# Estructura
-
-
-lib/
- └── features/
-     └── profile/
-         └── presentation/
-              └── accessibility_widgets.dart
-
-
-# Tecnologías
-
-- Flutter
-- Material 3
 - Semantics API
-
-# Resultado
-
-La aplicación ahora cuenta con una interfaz más accesible y compatible con tecnologías asistivas.
-
